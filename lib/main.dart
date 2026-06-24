@@ -1,12 +1,17 @@
+import 'package:app_11/firebase_options.dart';
 import 'package:app_11/screens/detalles_screen.dart';
 import 'package:app_11/screens/guardar_screen.dart';
 import 'package:app_11/screens/leer_screen.dart';
 import 'package:app_11/screens/login_screen.dart';
 import 'package:app_11/screens/registro_screen.dart';
 import 'package:app_11/screens/welcome_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
   runApp(const AppFire());
 }
 
