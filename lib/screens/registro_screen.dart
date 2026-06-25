@@ -1,5 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:app_11/main.dart';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class RegistroScreen extends StatelessWidget {
   const RegistroScreen({super.key});
@@ -63,38 +64,17 @@ Widget formulario(BuildContext context) {
 
 Future<void> registro(
   BuildContext context,
-  String emailAddress,
+  String email,
   String password,
 ) async {
-  try {
-    final credential = await FirebaseAuth.instance
-        .createUserWithEmailAndPassword(
-          email: emailAddress,
-          password: password,
-        );
+  final AuthResponse res = await supabase.auth.signUp(
+    email: email,
+    password: password,
+  );
+  final Session? session = res.session;
+  final User? user = res.user;
 
-    Navigator.pushNamed(context, "/guardar");
-  } on FirebaseAuthException catch (e) {
-    if (e.code == 'weak-password') {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text(e.code),
-          content: Text(e.message ?? "The password provided is too weak."),
-        ),
-      );
-    } else if (e.code == 'email-already-in-use') {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text(e.code),
-          content: Text(
-            e.message ?? "The account already exists for that email.",
-          ),
-        ),
-      );
-    }
-  } catch (e) {
-    print(e);
+  if (context.mounted) {
+    Navigator.pushNamed(context, "/login");
   }
 }

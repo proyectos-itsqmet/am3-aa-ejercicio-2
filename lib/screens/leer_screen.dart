@@ -1,4 +1,4 @@
-import 'package:firebase_database/firebase_database.dart';
+import 'package:app_11/main.dart';
 import 'package:flutter/material.dart';
 
 class LeerScreen extends StatelessWidget {
@@ -11,27 +11,18 @@ class LeerScreen extends StatelessWidget {
 }
 
 Future<List<dynamic>> leerFire() async {
-  final ref = FirebaseDatabase.instance.ref();
-  final snapshot = await ref.child('/autos').get();
+  final data = await supabase.from('autos').select();
 
-  if (snapshot.exists) {
-    return snapshot.children.map((child) {
-      final data = Map.from(child.value as Map);
-
-      return {
-        'placa': child.key,
-        'marca': data['marca'],
-        'precio': data['precio'],
-      };
-    }).toList();
-  } else {
-    return [];
-  }
+  return data;
 }
 
 Widget lista(BuildContext context) => FutureBuilder(
   future: leerFire(),
   builder: (context, snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return CircularProgressIndicator();
+    }
+
     if (snapshot.hasData) {
       final data = snapshot.data!;
 
@@ -43,7 +34,7 @@ Widget lista(BuildContext context) => FutureBuilder(
           return ListTile(
             title: Text(item['placa']),
             trailing: IconButton(
-              onPressed: () => eliminar(item['placa']),
+              onPressed: () => eliminar(context, item['placa']),
               icon: Icon(Icons.clear),
             ),
           );
@@ -56,8 +47,37 @@ Widget lista(BuildContext context) => FutureBuilder(
   },
 );
 
-Future<void> eliminar(String placa) async {
-  DatabaseReference ref = FirebaseDatabase.instance.ref("autos/$placa");
+Future<void> eliminar(BuildContext context, String placa) async {
+  try {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Advertencia"),
+        content: Text("Estas por borrar un otem"),
+        actions: [
+          FilledButton(
+            onPressed: (() => Navigator.pop(context)),
+            child: Text("Cancelar"),
+          ),
 
-  await ref.remove();
+          OutlinedButton(
+            onPressed: () async {
+              await supabase.from('autos').delete().eq('placa', placa);
+
+              Navigator.pop(context);
+            },
+            child: Text(""),
+          ),
+        ],
+      ),
+    );
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(e.toString()),
+        duration: Duration(seconds: 2),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
 }

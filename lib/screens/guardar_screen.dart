@@ -1,4 +1,4 @@
-import 'package:firebase_database/firebase_database.dart';
+import 'package:app_11/main.dart';
 import 'package:flutter/material.dart';
 
 class GuardarScreen extends StatelessWidget {
@@ -76,7 +76,15 @@ Future<void> guardar(
   String marca,
   double precio,
 ) async {
-  DatabaseReference ref = FirebaseDatabase.instance.ref("autos/$placa");
+  try {
+    await supabase.from('autos').insert({
+      'placa': placa,
+      'marca': marca,
+      'precio': precio,
+    });
 
-  await ref.set({"placa": placa, "marca": marca, "precio": precio});
+    print("Guardado");
+  } catch (e) {
+    print(e.toString());
+  }
 }

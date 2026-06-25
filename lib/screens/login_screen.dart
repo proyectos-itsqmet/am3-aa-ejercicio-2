@@ -1,5 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:app_11/main.dart';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -48,35 +49,19 @@ Widget formulario(BuildContext context) {
   );
 }
 
-Future<void> login(
-  BuildContext context,
-  String emailAddress,
-  String password,
-) async {
+Future<void> login(BuildContext context, String email, String password) async {
   try {
-    final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-      email: emailAddress,
+    final AuthResponse res = await supabase.auth.signInWithPassword(
+      email: email,
       password: password,
     );
+    final Session? session = res.session;
+    final User? user = res.user;
+
+    print(user.toString());
 
     Navigator.pushNamed(context, "/guardar");
-  } on FirebaseAuthException catch (e) {
-    if (e.code == 'user-not-found') {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text(e.code),
-          content: Text(e.message ?? "No user found for that email."),
-        ),
-      );
-    } else if (e.code == 'wrong-password') {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text(e.code),
-          content: Text(e.message ?? "Wrong password provided for that user."),
-        ),
-      );
-    }
+  } catch (e) {
+    print(e.toString());
   }
 }
