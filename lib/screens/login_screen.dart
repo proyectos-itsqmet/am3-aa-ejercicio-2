@@ -3,11 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LoginScreen extends StatelessWidget {
-  const LoginScreen({super.key});
+  final Function()? modoOscuro;
+  const LoginScreen({super.key, required this.modoOscuro});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: Center(child: formulario(context)));
+    return Scaffold(
+      appBar: AppBar(
+        actions: [
+          IconButton(onPressed: modoOscuro, icon: Icon(Icons.dark_mode)),
+        ],
+      ),
+      body: Center(child: formulario(context)),
+    );
   }
 }
 

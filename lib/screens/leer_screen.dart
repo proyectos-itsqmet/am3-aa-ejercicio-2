@@ -6,78 +6,166 @@ class LeerScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: Center(child: lista(context)));
+    return Scaffold(body: Center(child: Lista()));
   }
 }
 
-Future<List<dynamic>> leerFire() async {
+Future<List<dynamic>> leerSupa() async {
   final data = await supabase.from('autos').select();
 
   return data;
 }
 
-Widget lista(BuildContext context) => FutureBuilder(
-  future: leerFire(),
-  builder: (context, snapshot) {
-    if (snapshot.connectionState == ConnectionState.waiting) {
-      return CircularProgressIndicator();
-    }
+class Lista extends StatefulWidget {
+  const Lista({super.key});
 
-    if (snapshot.hasData) {
-      final data = snapshot.data!;
+  @override
+  State<Lista> createState() => _ListaState();
+}
 
-      return ListView.separated(
-        itemCount: data.length,
-        itemBuilder: (context, index) {
-          final item = data[index];
+class _ListaState extends State<Lista> {
+  List data = [];
 
-          return ListTile(
-            title: Text(item['placa']),
-            trailing: IconButton(
-              onPressed: () => eliminar(context, item['placa']),
-              icon: Icon(Icons.clear),
-            ),
-          );
-        },
-        separatorBuilder: (context, index) => SizedBox(height: 12),
-      );
-    } else {
-      return Text("No hay data");
-    }
-  },
-);
+  Future<void> cargaratos() async {
+    final traerData = await leerSupa();
+    setState(() {
+      data = traerData;
+    });
+  }
 
-Future<void> eliminar(BuildContext context, String placa) async {
-  try {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text("Advertencia"),
-        content: Text("Estas por borrar un otem"),
-        actions: [
-          FilledButton(
-            onPressed: (() => Navigator.pop(context)),
-            child: Text("Cancelar"),
-          ),
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: leerSupa(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator();
+        }
 
-          OutlinedButton(
-            onPressed: () async {
-              await supabase.from('autos').delete().eq('placa', placa);
+        if (snapshot.hasData) {
+          return ListView.separated(
+            itemCount: data.length,
+            itemBuilder: (context, index) {
+              final item = data[index];
 
-              Navigator.pop(context);
+              return ListTile(
+                title: Text(item['placa']),
+                leading: IconButton(onPressed: () {}, icon: Icon(Icons.edit)),
+                trailing: IconButton(
+                  onPressed: () => eliminar(context, item['placa']),
+                  icon: Icon(Icons.clear),
+                ),
+              );
             },
-            child: Text(""),
-          ),
-        ],
-      ),
-    );
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(e.toString()),
-        duration: Duration(seconds: 2),
-        backgroundColor: Colors.red,
-      ),
+            separatorBuilder: (context, index) => SizedBox(height: 12),
+          );
+        } else {
+          return Text("No hay data");
+        }
+      },
     );
   }
+
+  Future<void> eliminar(BuildContext context, String placa) async {
+    try {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text("Advertencia"),
+          content: Text("Estas por borrar un otem"),
+          actions: [
+            FilledButton(
+              onPressed: (() => Navigator.pop(context)),
+              child: Text("Cancelar"),
+            ),
+
+            OutlinedButton(
+              onPressed: () async {
+                await supabase.from('autos').delete().eq('placa', placa);
+
+                Navigator.pop(context);
+                cargaratos();
+              },
+              child: Text(""),
+            ),
+          ],
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString()),
+          duration: Duration(seconds: 2),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
 }
+
+// Widget lista2(BuildContext context) => FutureBuilder(
+//   future: leerFire(),
+//   builder: (context, snapshot) {
+//     if (snapshot.connectionState == ConnectionState.waiting) {
+//       return CircularProgressIndicator();
+//     }
+
+//     if (snapshot.hasData) {
+//       final data = snapshot.data!;
+
+//       return ListView.separated(
+//         itemCount: data.length,
+//         itemBuilder: (context, index) {
+//           final item = data[index];
+
+//           return ListTile(
+//             title: Text(item['placa']),
+//             trailing: IconButton(
+//               onPressed: () => eliminar(context, item['placa']),
+//               icon: Icon(Icons.clear),
+//             ),
+//           );
+//         },
+//         separatorBuilder: (context, index) => SizedBox(height: 12),
+//       );
+//     } else {
+//       return Text("No hay data");
+//     }
+//   },
+// );
+
+// Future<void> eliminar(BuildContext context, String placa) async {
+//   try {
+//     showDialog(
+//       context: context,
+//       builder: (context) => AlertDialog(
+//         title: Text("Advertencia"),
+//         content: Text("Estas por borrar un otem"),
+//         actions: [
+//           FilledButton(
+//             onPressed: (() => Navigator.pop(context)),
+//             child: Text("Cancelar"),
+//           ),
+
+//           OutlinedButton(
+//             onPressed: () async {
+//               await supabase.from('autos').delete().eq('placa', placa);
+
+//               Navigator.pop(context);
+//               cargaratos();
+//             },
+//             child: Text(""),
+//           ),
+//         ],
+//       ),
+//     );
+//   } catch (e) {
+//     ScaffoldMessenger.of(context).showSnackBar(
+//       SnackBar(
+//         content: Text(e.toString()),
+//         duration: Duration(seconds: 2),
+//         backgroundColor: Colors.red,
+//       ),
+//     );
+//   }
+// }

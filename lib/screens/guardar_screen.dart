@@ -8,67 +8,148 @@ class GuardarScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
-      body: Center(child: formulario(context)),
+      body: Center(child: Formulario()),
     );
   }
 }
 
-Widget formulario(BuildContext context) {
+class Formulario extends StatefulWidget {
+  const Formulario({super.key});
+
+  @override
+  State<Formulario> createState() => _FormularioState();
+}
+
+class _FormularioState extends State<Formulario> {
   TextEditingController placa = TextEditingController();
   TextEditingController marca = TextEditingController();
   TextEditingController precio = TextEditingController();
+  bool obscureText = true;
 
-  return Padding(
-    padding: EdgeInsetsGeometry.symmetric(horizontal: 64),
-    child: Column(
-      mainAxisSize: .min,
-      children: [
-        TextField(
-          controller: placa,
-          decoration: InputDecoration(
-            border: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.white),
-            ),
-          ),
-        ),
-        SizedBox(height: 12),
-        TextField(
-          controller: marca,
-          decoration: InputDecoration(
-            border: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.white),
-            ),
-          ),
-        ),
-        SizedBox(height: 12),
-        TextField(
-          controller: precio,
-          decoration: InputDecoration(
-            border: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.white),
-            ),
-          ),
-        ),
-        SizedBox(height: 12),
-        FilledButton(
-          onPressed: () {
-            double parsePrecio = double.parse(precio.text);
+  void ocultarTexto() {
+    setState(() {
+      obscureText = !obscureText;
+    });
+  }
 
-            guardar(context, placa.text, marca.text, parsePrecio);
-          },
-          child: Text("Guardar"),
-        ),
-        SizedBox(height: 12),
-        ElevatedButton(
-          onPressed: () {
-            Navigator.pushNamed(context, "/leer");
-          },
-          child: Text("Leer"),
-        ),
-      ],
-    ),
-  );
+  @override
+  Widget build(BuildContext context) {
+    print("Renderizando");
+    return Padding(
+      padding: EdgeInsetsGeometry.symmetric(horizontal: 64),
+      child: Column(
+        mainAxisSize: .min,
+        children: [
+          TextField(
+            controller: placa,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.white),
+              ),
+            ),
+          ),
+          SizedBox(height: 12),
+          TextField(
+            controller: marca,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.white),
+              ),
+            ),
+          ),
+          SizedBox(height: 12),
+          TextField(
+            controller: precio,
+            obscureText: obscureText,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.white),
+              ),
+              prefixIcon: Icon(Icons.numbers),
+              suffixIcon: IconButton(
+                onPressed: () => ocultarTexto(),
+                icon: Icon(Icons.remove_red_eye),
+              ),
+            ),
+          ),
+          SizedBox(height: 12),
+          FilledButton(
+            onPressed: () {
+              double parsePrecio = double.parse(precio.text);
+
+              guardar(context, placa.text, marca.text, parsePrecio);
+            },
+            child: Text("Guardar"),
+          ),
+          SizedBox(height: 12),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pushNamed(context, "/leer");
+            },
+            child: Text("Leer"),
+          ),
+        ],
+      ),
+    );
+  }
 }
+
+// Widget formulario2(BuildContext context) {
+//   TextEditingController placa = TextEditingController();
+//   TextEditingController marca = TextEditingController();
+//   TextEditingController precio = TextEditingController();
+
+//   return Padding(
+//     padding: EdgeInsetsGeometry.symmetric(horizontal: 64),
+//     child: Column(
+//       mainAxisSize: .min,
+//       children: [
+//         TextField(
+//           controller: placa,
+//           decoration: InputDecoration(
+//             border: OutlineInputBorder(
+//               borderSide: BorderSide(color: Colors.white),
+//             ),
+//           ),
+//         ),
+//         SizedBox(height: 12),
+//         TextField(
+//           controller: marca,
+//           decoration: InputDecoration(
+//             border: OutlineInputBorder(
+//               borderSide: BorderSide(color: Colors.white),
+//             ),
+//           ),
+//         ),
+//         SizedBox(height: 12),
+//         TextField(
+//           controller: precio,
+//           decoration: InputDecoration(
+//             border: OutlineInputBorder(
+//               borderSide: BorderSide(color: Colors.white),
+//             ),
+//           ),
+//         ),
+//         SizedBox(height: 12),
+//         FilledButton(
+//           onPressed: () {
+//             double parsePrecio = double.parse(precio.text);
+
+//             guardar(context, placa.text, marca.text, parsePrecio);
+//           },
+//           child: Text("Guardar"),
+//         ),
+//         SizedBox(height: 12),
+//         ElevatedButton(
+//           onPressed: () {
+//             Navigator.pushNamed(context, "/leer");
+//           },
+//           child: Text("Leer"),
+//         ),
+//       ],
+//     ),
+//   );
+// }
 
 Future<void> guardar(
   BuildContext context,
